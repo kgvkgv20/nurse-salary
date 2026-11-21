@@ -146,6 +146,30 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     }
   };
 
+  const handleToggleDirectWallet = async (enabled: boolean) => {
+    setEnableDirectWallet(enabled);
+    try {
+      setIsSaving(true);
+      await onSaveSettings({
+        ...settings,
+        display_name: displayName,
+        cutoff_start_day: cutoffDay,
+        payout_month_offset: payoutOffset,
+        include_base_salary: includeBaseSalary,
+        base_salary: baseSalary,
+        enable_direct_wallet: enabled,
+        default_rates: rates,
+        shift_times: shiftTimes,
+      });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch (err) {
+      console.error("Auto-save failed for wallet 2 toggle:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleAddNewPreset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPresetTitle.trim()) return;
@@ -470,23 +494,33 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <span>กระเป๋าที่ 2: เวรนอก & เวรแทนเพื่อน</span>
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
-            <input
-              type="checkbox"
-              checked={enableDirectWallet}
-              onChange={(e) => setEnableDirectWallet(e.target.checked)}
-              className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
-            />
-            <span className={enableDirectWallet ? "font-bold text-amber-700 dark:text-amber-400" : "text-slate-400"}>
+          <div className="flex items-center gap-2.5">
+            <span className={`text-xs font-semibold transition-colors ${enableDirectWallet ? "text-amber-600 dark:text-amber-400" : "text-slate-400"}`}>
               {enableDirectWallet ? "เปิดใช้งาน" : "ปิดการใช้งาน"}
             </span>
-          </label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={enableDirectWallet}
+              data-testid="toggle-wallet-2"
+              onClick={() => handleToggleDirectWallet(!enableDirectWallet)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 active:scale-95 ${
+                enableDirectWallet ? "bg-amber-600" : "bg-slate-300 dark:bg-slate-700"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  enableDirectWallet ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
         </div>
 
         <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
           {enableDirectWallet
-            ? "เปิดใช้งานอยู่: แสดงการ์ดติดตามเงินเวรแทนเพื่อน/คลินิกนอก และปุ่มคัดลอกข้อความทวงเงินบนหน้าแรก"
-            : "ปิดการใช้งานอยู่: ซ่อนการ์ดกระเป๋าที่ 2 บนหน้าแรกทั้งหมด เพื่อให้หน้าจอสะอาด กระชับ และโฟกัสเฉพาะสลิปโรงพยาบาล"}
+            ? "เปิดใช้งานอยู่: แสดงการ์ดติดตามเงินเวรแทนเพื่อน/คลินิกนอก และปุ่มคัดลอกข้อความทวงเงินบนหน้าแรก (สลับแล้วบันทึกอัตโนมัติ)"
+            : "ปิดการใช้งานอยู่: ซ่อนการ์ดกระเป๋าที่ 2 บนหน้าแรกทั้งหมด เพื่อให้หน้าจอสะอาด กระชับ และโฟกัสเฉพาะสลิปโรงพยาบาล (สลับแล้วบันทึกอัตโนมัติ)"}
         </p>
       </div>
 
@@ -611,6 +645,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Bottom Save Action */}
+      <div className="pt-2">
+        <button
+          onClick={handleSaveAll}
+          disabled={isSaving}
+          className="w-full h-12 flex items-center justify-center gap-2 px-4 bg-sky-600 hover:bg-sky-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs"
+        >
+          {saveSuccess ? <Check className="w-4 h-4" strokeWidth={2.2} /> : <Save className="w-4 h-4" strokeWidth={2} />}
+          <span>{saveSuccess ? "บันทึกการตั้งค่าเรียบร้อยแล้ว ✓" : isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่าทั้งหมด"}</span>
+        </button>
       </div>
 
       {/* 6. Reset Test Data */}
