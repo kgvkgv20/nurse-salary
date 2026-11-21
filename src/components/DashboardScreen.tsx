@@ -86,6 +86,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   // Nurse Work Hours & Energy Stats (for Mini Glance Banner)
   const energy = computeNurseEnergy(summary);
 
+  // Check if Wallet 2 is enabled
+  const isDirectWalletEnabled = summary.settings.enable_direct_wallet !== false;
+
   // Pending logs from Wallet 2
   const pendingLogs = summary.extraLogs.filter(
     (l) => l.payout_channel === "DIRECT" && !l.is_paid
@@ -150,7 +153,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-              รายได้รวมทุกกระเป๋าในรอบนี้
+              {isDirectWalletEnabled ? "รายได้รวมทุกกระเป๋าในรอบนี้" : "ยอดรายได้สลิปโรงพยาบาลในรอบนี้"}
             </span>
           </div>
 
@@ -166,30 +169,46 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <div className="my-2">
           <div className="flex items-baseline gap-1.5">
             <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight tabular-nums">
-              ฿{formatBaht(summary.grandTotal, true)}
+              ฿{formatBaht(isDirectWalletEnabled ? summary.grandTotal : summary.expectedHospitalSlip, true)}
             </span>
             <span className="text-xs text-slate-500 font-medium">บาท</span>
           </div>
 
           {/* Wallet Split Sub-badges */}
-          <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
-            <div className="px-2.5 py-1 rounded-lg bg-sky-50/80 dark:bg-slate-800/80 border border-sky-200/60 dark:border-slate-700 flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-              <span className="text-slate-600 dark:text-slate-400">สลิป รพ.:</span>
-              <strong className="text-slate-900 dark:text-slate-100 tabular-nums">฿{formatBaht(summary.expectedHospitalSlip)}</strong>
-            </div>
+          {isDirectWalletEnabled ? (
+            <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+              <div className="px-2.5 py-1 rounded-lg bg-sky-50/80 dark:bg-slate-800/80 border border-sky-200/60 dark:border-slate-700 flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span className="text-slate-600 dark:text-slate-400">สลิป รพ.:</span>
+                <strong className="text-slate-900 dark:text-slate-100 tabular-nums">฿{formatBaht(summary.expectedHospitalSlip)}</strong>
+              </div>
 
-            <div className="px-2.5 py-1 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span className="text-amber-900 dark:text-amber-300">เวรนอก/เพื่อน:</span>
-              <strong className="text-slate-900 dark:text-slate-100 tabular-nums">฿{formatBaht(summary.directTotalSum)}</strong>
-              {pendingLogs.length > 0 && (
-                <span className="text-[9px] px-1 rounded-full bg-amber-500 text-white font-bold">
-                  รอโอน {pendingLogs.length}
-                </span>
-              )}
+              <div className="px-2.5 py-1 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="text-amber-900 dark:text-amber-300">เวรนอก/เพื่อน:</span>
+                <strong className="text-slate-900 dark:text-slate-100 tabular-nums">฿{formatBaht(summary.directTotalSum)}</strong>
+                {pendingLogs.length > 0 && (
+                  <span className="text-[9px] px-1 rounded-full bg-amber-500 text-white font-bold">
+                    รอโอน {pendingLogs.length}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-2 flex items-center gap-2 text-xs">
+              <div className="px-2.5 py-1 rounded-lg bg-sky-50/80 dark:bg-slate-800/80 border border-sky-200/60 dark:border-slate-700 flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span className="text-slate-600 dark:text-slate-400">เวรตาราง:</span>
+                <strong className="text-slate-900 dark:text-slate-100 tabular-nums">฿{formatBaht(summary.shiftSum)}</strong>
+                {summary.extraHospitalSum > 0 && (
+                  <>
+                    <span className="text-slate-300 dark:text-slate-700">•</span>
+                    <span className="text-sky-700 dark:text-sky-300">OT: <strong className="tabular-nums">฿{formatBaht(summary.extraHospitalSum)}</strong></span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -372,8 +391,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 4. WALLET 2 - DIRECT / PEER TRANSFERS */}
+      {/* 4. WALLET 2 - DIRECT / PEER TRANSFERS (OPTIONAL TOGGLE)       */}
       {/* ------------------------------------------------------------- */}
+      {isDirectWalletEnabled && (
       <div className="bg-white dark:bg-[#0e1726] rounded-2xl p-4 border border-sky-100 dark:border-sky-900/70 shadow-2xs transition-colors">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -518,6 +538,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </p>
         )}
       </div>
+      )}
 
       {/* ------------------------------------------------------------- */}
       {/* 5. MAIN ACTION BUTTONS (44px+ mobile touch targets) */}
@@ -536,7 +557,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           className="h-12 flex items-center justify-center gap-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-[0.97] text-white font-semibold text-xs transition-all shadow-2xs"
         >
           <Plus className="w-4 h-4" strokeWidth={2} />
-          <span>จดงานงอก / เวรนอก</span>
+          <span>{isDirectWalletEnabled ? "จดงานงอก / เวรนอก" : "จด OT งอก"}</span>
         </button>
       </div>
     </div>

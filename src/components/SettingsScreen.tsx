@@ -17,6 +17,7 @@ import {
   Moon,
   Type,
   ArrowLeft,
+  Users,
 } from "lucide-react";
 import { ExtraPreset, ShiftCounts, ShiftRates, ShiftTimesMap, UserSettings } from "@/types";
 import { formatBaht } from "@/lib/calculations";
@@ -56,6 +57,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [payoutOffset, setPayoutOffset] = useState(settings.payout_month_offset);
   const [includeBaseSalary, setIncludeBaseSalary] = useState(settings.include_base_salary);
   const [baseSalary, setBaseSalary] = useState(settings.base_salary);
+  const [enableDirectWallet, setEnableDirectWallet] = useState(settings.enable_direct_wallet !== false);
   const [rates, setRates] = useState<ShiftRates>({ ...settings.default_rates });
 
   const [shiftTimes, setShiftTimes] = useState<ShiftTimesMap>({
@@ -133,6 +135,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         payout_month_offset: payoutOffset,
         include_base_salary: includeBaseSalary,
         base_salary: baseSalary,
+        enable_direct_wallet: enableDirectWallet,
         default_rates: rates,
         shift_times: shiftTimes,
       });
@@ -459,7 +462,35 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         )}
       </div>
 
-      {/* 4. Shift Rates */}
+      {/* 4. Enable/Disable Wallet 2 (Direct/Peer Shifts) */}
+      <div className="bg-white dark:bg-[#0e1726] rounded-2xl p-4 border border-sky-100 dark:border-sky-900 shadow-2xs space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-slate-100">
+            <Users className="w-4 h-4 text-amber-600 dark:text-amber-400" strokeWidth={1.8} />
+            <span>กระเป๋าที่ 2: เวรนอก & เวรแทนเพื่อน</span>
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              checked={enableDirectWallet}
+              onChange={(e) => setEnableDirectWallet(e.target.checked)}
+              className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
+            />
+            <span className={enableDirectWallet ? "font-bold text-amber-700 dark:text-amber-400" : "text-slate-400"}>
+              {enableDirectWallet ? "เปิดใช้งาน" : "ปิดการใช้งาน"}
+            </span>
+          </label>
+        </div>
+
+        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+          {enableDirectWallet
+            ? "เปิดใช้งานอยู่: แสดงการ์ดติดตามเงินเวรแทนเพื่อน/คลินิกนอก และปุ่มคัดลอกข้อความทวงเงินบนหน้าแรก"
+            : "ปิดการใช้งานอยู่: ซ่อนการ์ดกระเป๋าที่ 2 บนหน้าแรกทั้งหมด เพื่อให้หน้าจอสะอาด กระชับ และโฟกัสเฉพาะสลิปโรงพยาบาล"}
+        </p>
+      </div>
+
+      {/* 5. Shift Rates */}
       <div className="bg-white dark:bg-[#0e1726] rounded-2xl p-4 border border-sky-100 dark:border-sky-900 shadow-2xs space-y-2.5">
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-slate-100">
           <Briefcase className="w-4 h-4 text-sky-600 dark:text-sky-400" strokeWidth={1.8} />

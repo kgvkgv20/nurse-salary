@@ -90,6 +90,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   payout_month_offset: 1,
   include_base_salary: false,
   base_salary: 24500,
+  enable_direct_wallet: true,
   default_rates: DEFAULT_RATES,
   shift_times: DEFAULT_SHIFT_TIMES,
   selected_font: "noto",

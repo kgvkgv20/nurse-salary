@@ -14,6 +14,7 @@ interface QuickAddSheetProps {
   lineUserId: string;
   presets: ExtraPreset[];
   hourlyRate: number;
+  enableDirectWallet?: boolean;
   onAddLog: (log: Omit<ExtraLog, "id" | "created_at">) => Promise<void>;
 }
 
@@ -24,6 +25,7 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
   lineUserId,
   presets,
   hourlyRate,
+  enableDirectWallet = true,
   onAddLog,
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -83,6 +85,10 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
     setIsPaid(false);
   };
 
+  const visiblePresets = enableDirectWallet
+    ? presets
+    : presets.filter((p) => p.payout_channel === "HOSPITAL");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = parseFloat(amountStr);
@@ -90,6 +96,8 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
       alert("กรุณาระบุจำนวนเงินที่ถูกต้อง");
       return;
     }
+
+    const finalChannel = enableDirectWallet ? payoutChannel : "HOSPITAL";
 
     try {
       setIsSubmitting(true);
@@ -100,8 +108,8 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
         log_type: logType,
         title_note: titleNote.trim() || LOG_TYPE_CONFIG[logType]?.label || "งานเสริม",
         amount: amountNum,
-        payout_channel: payoutChannel,
-        is_paid: payoutChannel === "HOSPITAL" ? true : isPaid,
+        payout_channel: finalChannel,
+        is_paid: finalChannel === "HOSPITAL" ? true : isPaid,
       });
       onClose();
     } finally {
@@ -122,9 +130,11 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
         <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-sky-100 dark:border-sky-900">
           <div>
             <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-              จดงานงอก / เวรนอกด่วน
+              {enableDirectWallet ? "จดงานงอก / เวรนอกด่วน" : "จด OT งอกด่วน"}
             </h2>
-            <p className="text-[11px] text-slate-500">บันทึกเวรเสริมหรือ OT นอกตารางใน 3 คลิก</p>
+            <p className="text-[11px] text-slate-500">
+              {enableDirectWallet ? "บันทึกเวรเสริมหรือ OT นอกตารางใน 3 คลิก" : "บันทึก OT เพิ่มเติมเข้าสลิปใน 3 คลิก"}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -143,7 +153,7 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
               1. เลือกประเภทงาน
             </label>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className={enableDirectWallet ? "grid grid-cols-2 gap-2" : "grid grid-cols-1 gap-2"}>
               <button
                 type="button"
                 onClick={() => handleSelectType("OT_HOURLY")}
@@ -159,60 +169,64 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
                 <span>OT อยู่ต่อ (ราย ชม.)</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleSelectType("COVER_PEER")}
-                className={`min-h-[48px] p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs font-medium transition-all active:scale-[0.97] ${
-                  logType === "COVER_PEER"
-                    ? "bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-950 dark:text-sky-100 font-semibold shadow-2xs"
-                    : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-sky-50/50"
-                }`}
-              >
-                <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
-                  <Users className="w-3.5 h-3.5" strokeWidth={2} />
-                </div>
-                <span>รับเวรแทนเพื่อน</span>
-              </button>
+              {enableDirectWallet && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectType("COVER_PEER")}
+                    className={`min-h-[48px] p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs font-medium transition-all active:scale-[0.97] ${
+                      logType === "COVER_PEER"
+                        ? "bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-950 dark:text-sky-100 font-semibold shadow-2xs"
+                        : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-sky-50/50"
+                    }`}
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center shrink-0 text-indigo-600 dark:text-indigo-400">
+                      <Users className="w-3.5 h-3.5" strokeWidth={2} />
+                    </div>
+                    <span>รับเวรแทนเพื่อน</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => handleSelectType("EXTERNAL_CLINIC")}
-                className={`min-h-[48px] p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs font-medium transition-all active:scale-[0.97] ${
-                  logType === "EXTERNAL_CLINIC"
-                    ? "bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-950 dark:text-sky-100 font-semibold shadow-2xs"
-                    : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-sky-50/50"
-                }`}
-              >
-                <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center shrink-0 text-amber-600 dark:text-amber-400">
-                  <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
-                </div>
-                <span>เวรคลินิก / รพ.นอก</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectType("EXTERNAL_CLINIC")}
+                    className={`min-h-[48px] p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs font-medium transition-all active:scale-[0.97] ${
+                      logType === "EXTERNAL_CLINIC"
+                        ? "bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-950 dark:text-sky-100 font-semibold shadow-2xs"
+                        : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-sky-50/50"
+                    }`}
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center shrink-0 text-amber-600 dark:text-amber-400">
+                      <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
+                    </div>
+                    <span>เวรคลินิก / รพ.นอก</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => handleSelectType("SELL_SHIFT")}
-                className={`min-h-[48px] p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs font-medium transition-all active:scale-[0.97] ${
-                  logType === "SELL_SHIFT"
-                    ? "bg-rose-50 dark:bg-rose-950/70 border-rose-500 text-rose-950 dark:text-rose-100 font-semibold shadow-2xs"
-                    : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-rose-50/50"
-                }`}
-              >
-                <div className="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-950 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
-                  <ArrowDownRight className="w-3.5 h-3.5" strokeWidth={2} />
-                </div>
-                <span>ขายเวร (หักยอด)</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectType("SELL_SHIFT")}
+                    className={`min-h-[48px] p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs font-medium transition-all active:scale-[0.97] ${
+                      logType === "SELL_SHIFT"
+                        ? "bg-rose-50 dark:bg-rose-950/70 border-rose-500 text-rose-950 dark:text-rose-100 font-semibold shadow-2xs"
+                        : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-rose-50/50"
+                    }`}
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-950 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
+                      <ArrowDownRight className="w-3.5 h-3.5" strokeWidth={2} />
+                    </div>
+                    <span>ขายเวร (หักยอด)</span>
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Presets */}
-            {presets.length > 0 && (
+            {visiblePresets.length > 0 && (
               <div className="mt-2.5 pt-2 border-t border-sky-100 dark:border-sky-900/60">
                 <span className="text-[10px] text-slate-400 block mb-1.5 font-medium">
                   ปุ่มลัดเวรประจำ:
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {presets.map((preset) => (
+                  {visiblePresets.map((preset) => (
                     <button
                       key={preset.id}
                       type="button"
@@ -290,61 +304,63 @@ export const QuickAddSheet: React.FC<QuickAddSheetProps> = ({
             </div>
           </div>
 
-          {/* STEP 3: เลือกกระเป๋าเงิน */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">
-              3. เลือกกระเป๋าเงิน
-            </label>
+          {/* STEP 3: เลือกกระเป๋าเงิน (แสดงเฉพาะเมื่อเปิดใช้งานกระเป๋าที่ 2) */}
+          {enableDirectWallet && (
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">
+                3. เลือกกระเป๋าเงิน
+              </label>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPayoutChannel("HOSPITAL")}
-                className={`h-14 p-2.5 rounded-xl border text-center transition-all active:scale-[0.97] flex flex-col justify-center items-center ${
-                  payoutChannel === "HOSPITAL"
-                    ? "bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-950 dark:text-sky-100 font-semibold shadow-2xs"
-                    : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-sky-50/50"
-                }`}
-              >
-                <div className="text-xs font-semibold">เข้าสลิปโรงพยาบาล</div>
-                <span className="text-[10px] text-sky-600 dark:text-sky-400 font-medium">(กระเป๋าที่ 1)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPayoutChannel("DIRECT")}
-                className={`h-14 p-2.5 rounded-xl border text-center transition-all active:scale-[0.97] flex flex-col justify-center items-center ${
-                  payoutChannel === "DIRECT"
-                    ? "bg-amber-50 dark:bg-amber-950/70 border-amber-500 text-amber-950 dark:text-amber-100 font-semibold shadow-2xs"
-                    : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-amber-50/50"
-                }`}
-              >
-                <div className="text-xs font-semibold">รับโอนตรง / เงินสด</div>
-                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">(กระเป๋าที่ 2)</span>
-              </button>
-            </div>
-
-            {payoutChannel === "DIRECT" && (
-              <div className="p-3 bg-[#fffbf0] dark:bg-amber-950/20 rounded-xl border border-amber-200/80 dark:border-amber-900/40 flex items-center justify-between">
-                <span className="text-xs font-medium text-amber-900 dark:text-amber-200">
-                  สถานะการรับเงิน
-                </span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPayoutChannel("HOSPITAL")}
+                  className={`h-14 p-2.5 rounded-xl border text-center transition-all active:scale-[0.97] flex flex-col justify-center items-center ${
+                    payoutChannel === "HOSPITAL"
+                      ? "bg-sky-50 dark:bg-sky-950/70 border-sky-500 text-sky-950 dark:text-sky-100 font-semibold shadow-2xs"
+                      : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-sky-50/50"
+                  }`}
+                >
+                  <div className="text-xs font-semibold">เข้าสลิปโรงพยาบาล</div>
+                  <span className="text-[10px] text-sky-600 dark:text-sky-400 font-medium">(กระเป๋าที่ 1)</span>
+                </button>
 
                 <button
                   type="button"
-                  onClick={() => setIsPaid(!isPaid)}
-                  className={`h-8 flex items-center gap-1 px-3 rounded-lg text-xs font-semibold transition-all active:scale-[0.96] ${
-                    isPaid
-                      ? "bg-emerald-600 text-white"
-                      : "bg-amber-200/80 text-amber-900 border border-amber-300/60"
+                  onClick={() => setPayoutChannel("DIRECT")}
+                  className={`h-14 p-2.5 rounded-xl border text-center transition-all active:scale-[0.97] flex flex-col justify-center items-center ${
+                    payoutChannel === "DIRECT"
+                      ? "bg-amber-50 dark:bg-amber-950/70 border-amber-500 text-amber-950 dark:text-amber-100 font-semibold shadow-2xs"
+                      : "bg-white dark:bg-[#121c2c] border-sky-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-amber-50/50"
                   }`}
                 >
-                  <Check className="w-3.5 h-3.5" strokeWidth={2.2} />
-                  {isPaid ? "ได้รับแล้ว" : "ค้างรับ (รอโอน)"}
+                  <div className="text-xs font-semibold">รับโอนตรง / เงินสด</div>
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">(กระเป๋าที่ 2)</span>
                 </button>
               </div>
-            )}
-          </div>
+
+              {payoutChannel === "DIRECT" && (
+                <div className="p-3 bg-[#fffbf0] dark:bg-amber-950/20 rounded-xl border border-amber-200/80 dark:border-amber-900/40 flex items-center justify-between">
+                  <span className="text-xs font-medium text-amber-900 dark:text-amber-200">
+                    สถานะการรับเงิน
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsPaid(!isPaid)}
+                    className={`h-8 flex items-center gap-1 px-3 rounded-lg text-xs font-semibold transition-all active:scale-[0.96] ${
+                      isPaid
+                        ? "bg-emerald-600 text-white"
+                        : "bg-amber-200/80 text-amber-900 border border-amber-300/60"
+                    }`}
+                  >
+                    <Check className="w-3.5 h-3.5" strokeWidth={2.2} />
+                    {isPaid ? "ได้รับแล้ว" : "ค้างรับ (รอโอน)"}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           </div>
 
