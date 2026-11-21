@@ -105,6 +105,7 @@ export const PeriodHeader: React.FC<PeriodHeaderProps> = ({
           {/* User Profile & Settings */}
           <button
             onClick={onOpenSettings}
+            data-testid="header-settings-btn"
             className="h-9 flex items-center gap-1.5 bg-sky-50/80 dark:bg-slate-800/80 hover:bg-sky-100 dark:hover:bg-slate-700 active:scale-[0.96] transition-all text-xs font-semibold px-2.5 rounded-xl border border-sky-100/90 dark:border-slate-700/60 text-slate-800 dark:text-slate-200 group"
             title="ตั้งค่ารอบเวร เรตค่าเวร และระบบ"
           >
