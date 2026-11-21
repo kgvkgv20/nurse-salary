@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700&family=Anuphan:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-family-active: var(--font-noto), 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* NursePay Sky & Crisp White Palette (Light Mode) */
+  --background: #f1f6fb;        /* Clean, airy sky-tinted white */
+  --foreground: #0d233a;        /* Deep medical navy for high contrast AAA reading */
+  --surface-card: #ffffff;      /* Pure white card */
+  --surface-raised: #e8f2fa;    /* Cloud sky blue inset */
+  --border-hairline: #d8e6f3;   /* Soft sky border */
+  --text-primary: #0d233a;
+  --text-secondary: #3b5266;
+  --text-muted: #647b91;
+  --accent: #0284c7;            /* Sky 600 */
+  --accent-hover: #0369a1;      /* Sky 700 */
+  --accent-muted: #e0f2fe;      /* Sky 100 */
+}
+
+[data-font="noto"] {
+  --font-family-active: var(--font-noto), 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+[data-font="kanit"] {
+  --font-family-active: var(--font-kanit), 'Kanit', sans-serif;
+}
+
+[data-font="anuphan"] {
+  --font-family-active: var(--font-anuphan), 'Anuphan', sans-serif;
+}
+
+[data-font="prompt"] {
+  --font-family-active: var(--font-prompt), 'Prompt', sans-serif;
+}
+
+.dark {
+  /* Night Shift Telemetry Palette (Dark Mode) */
+  --background: #080d16;        /* Deep ink slate */
+  --foreground: #f1f5f9;
+  --surface-card: #0e1726;      /* Elevated night card */
+  --surface-raised: #162238;    /* Deep sky telemetry surface */
+  --border-hairline: #1e304a;   /* Subtle dark divider */
+  --text-primary: #f1f5f9;
+  --text-secondary: #90a4bc;
+  --text-muted: #5c738e;
+  --accent: #38bdf8;            /* Sky 400 */
+  --accent-hover: #7dd3fc;
+  --accent-muted: #0c4a6e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-family-active);
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-active);
+  background-color: var(--background);
+  color: var(--foreground);
+  overscroll-behavior-y: none;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile Touch Target & Interaction Helpers */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Soft Elevation for Cards */
+.card-soft {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-hairline);
+  box-shadow: 0 1px 3px rgba(13, 35, 58, 0.03), 0 6px 16px -2px rgba(2, 132, 199, 0.04);
+}
+
+.dark .card-soft {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-hairline);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), 0 6px 18px -2px rgba(0, 0, 0, 0.35);
+}
+
+/* Tabular Numbers for Money, Hours, and Counts */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Safe Area Insets for Mobile / LINE LIFF */
+.pb-safe {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
