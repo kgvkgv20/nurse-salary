@@ -39,6 +39,7 @@ export interface UserSettings {
   payout_month_offset: number;   // 0 = same month, 1 = next month
   include_base_salary: boolean;
   base_salary: number;
+  enable_direct_wallet?: boolean; // เปิด/ปิด การใช้งานกระเป๋า 2 (เวรนอก & เวรแทนเพื่อน)
   default_rates: ShiftRates;
   shift_times?: ShiftTimesMap;   // ปรับแต่งเวลาและจำนวนชั่วโมงของแต่ละเวร
   selected_font?: "noto" | "kanit" | "anuphan" | "prompt";

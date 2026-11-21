@@ -240,7 +240,9 @@ export default function Home() {
     await loadData();
   };
 
-  const pendingCount = extraLogs.filter((l) => l.payout_channel === "DIRECT" && !l.is_paid).length;
+  const pendingCount = settings.enable_direct_wallet === false
+    ? 0
+    : extraLogs.filter((l) => l.payout_channel === "DIRECT" && !l.is_paid).length;
 
   return (
     <div className={`min-h-screen ${theme === "dark" ? "dark" : ""} bg-[#e8f1f8] dark:bg-[#05080e] flex justify-center text-slate-900 dark:text-slate-100 selection:bg-sky-500 selection:text-white transition-colors duration-150`}>
@@ -365,6 +367,7 @@ export default function Home() {
             periodId={currentPeriod.id}
             lineUserId={userId}
             presets={presets}
+            enableDirectWallet={settings.enable_direct_wallet !== false}
             hourlyRate={
               (currentPeriod.rates_snapshot && currentPeriod.rates_snapshot.ot_hr) ||
               settings.default_rates.ot_hr ||
