@@ -39,7 +39,7 @@ interface WellnessScreenProps {
   onBackToDashboard?: () => void;
 }
 
-type SleepRoutineType = "NIGHT_AFTER" | "QUICK_TURNAROUND" | "POWER_NAP" | "DOUBLE_SHIFT";
+type SleepRoutineType = "NIGHT_AFTER" | "QUICK_TURNAROUND" | "POWER_NAP" | "DOUBLE_SHIFT" | "SPLIT_SHIFT";
 
 interface RoutineInfo {
   type: SleepRoutineType;
@@ -177,6 +177,39 @@ const SLEEP_ROUTINES: RoutineInfo[] = [
       },
     ],
     criticalWarning: "🤍 หลังลงเวรควง 16 ชม. ห้ามรับปากขึ้นเวรแทนใครเพิ่ม ให้กลับไปนอนหลับพักฟื้นร่างกายทันทีเพื่อป้องกัน Burnout",
+  },
+  {
+    type: "SPLIT_SHIFT",
+    title: "เช้าแล้วต่อ OT ดึก (ช. ➔ OT-ด.)",
+    badge: "สูตรนอนชาร์จแบตช่วงบ่าย 4.5 ชม.",
+    badgeClass: "bg-cyan-100 text-cyan-900 dark:bg-cyan-950 dark:text-cyan-300 border-cyan-200",
+    icon: "🌙",
+    shortDesc: "เลิกเช้า 16:00 น. มีเวลา 8 ชม. ก่อนขึ้น OT ดึกตอนเที่ยงคืน เทคนิคนอนให้อิ่มไม่เพลีย",
+    steps: [
+      {
+        timeRange: "16:00 - 17:30 น.",
+        action: "กลับถึงบ้าน รีบทานมื้อเย็นย่อยง่าย",
+        detail: "ทานอาหารโปรตีนย่อยง่าย เช่น ข้าวต้มปลา ไข่ต้ม หรือแกงจืด หลีกเลี่ยงของทอดมันและกาแฟช่วงเย็น",
+      },
+      {
+        timeRange: "17:45 - 22:15 น. (4.5 ชม.)",
+        action: "ช่วงเวลานอนทองคำ (3 รอบ Sleep Cycles)",
+        detail: "นอนให้ครบ 3 รอบวงจรหลับ (รอบละ 90 นาที) ห้องนอนต้องมืดสนิท อุณหภูมิ 24°C ปิดเสียงแจ้งเตือนมือถือ",
+        highlight: true,
+      },
+      {
+        timeRange: "22:30 - 23:30 น.",
+        action: "ตื่นมาอาบน้ำ & เติมพลังเบาๆ",
+        detail: "อาบน้ำอุ่นสลับเย็นให้สดชื่น ดื่มน้ำเปล่า 1 แก้วเต็มๆ และผลไม้สด เพื่อให้สมองตื่นตัวพร้อมเดินทางไป รพ.",
+      },
+      {
+        timeRange: "24:00 - 08:00 น. (กะดึก)",
+        action: "ขึ้น OT ดึกด้วยความสดชื่นเต็มร้อย",
+        detail: "ร่างกายจะตื่นตัวดีเพราะได้นอนมาแล้ว 4.5 ชม. ช่วง 04:00 - 05:00 น. ให้จิบน้ำเย็นเพื่อคงสมาธิ",
+        highlight: true,
+      },
+    ],
+    criticalWarning: "⚠️ ห้ามนอนเล่นไถมือถือจนถึง 20:00 น. เด็ดขาด เพราะจะเหลือเวลานอนจริงแค่ 2 ชม. ทำให้เกิดอาการหลับในหรือจ่ายยาผิดช่วงตี 3 - ตี 5!",
   },
 ];
 

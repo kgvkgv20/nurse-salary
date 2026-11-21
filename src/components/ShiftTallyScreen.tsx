@@ -229,6 +229,16 @@ export const ShiftTallyScreen: React.FC<ShiftTallyScreenProps> = ({
                       <span>•</span>
                       <span>{timeLabel}</span>
                     </p>
+                    {shift.key === "ot_n" && (
+                      <span className="text-[10px] text-indigo-600 dark:text-indigo-400 block font-medium mt-0.5">
+                        💡 นับรวม: OT ดึกเดี่ยว หรือ กะเช้าแล้วต่อ OT ดึก (ช.-ด.)
+                      </span>
+                    )}
+                    {shift.key === "ot_a" && (
+                      <span className="text-[10px] text-cyan-600 dark:text-cyan-400 block font-medium mt-0.5">
+                        💡 นับรวม: OT บ่ายเดี่ยว หรือ ควงเช้าต่อบ่าย 16 ชม. (ช.-บ.)
+                      </span>
+                    )}
                   </div>
                 </div>
 

@@ -50,7 +50,7 @@ interface ScheduleScreenProps {
   onBackToDashboard?: () => void;
 }
 
-export type ShiftTypeTag = "OFF" | "M" | "A" | "N" | "DOUBLE" | "QUICK";
+export type ShiftTypeTag = "OFF" | "M" | "A" | "N" | "DOUBLE" | "QUICK" | "SPLIT";
 
 export interface DayScheduleItem {
   dateStr: string; // YYYY-MM-DD
@@ -109,7 +109,15 @@ const SHIFT_OPTIONS: {
     label: "ควง 16h",
     icon: "⚡",
     badgeClass: "bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-300 border-rose-300 dark:border-rose-800",
-    desc: "เวรควง 16 ชม. ติด",
+    desc: "เวรควง 16 ชม. ติด (ช.+บ. หรือ บ.+ด.)",
+    hours: 16,
+  },
+  {
+    type: "SPLIT",
+    label: "ช.➔OT-ด.",
+    icon: "🌙",
+    badgeClass: "bg-purple-100 text-purple-900 dark:bg-purple-950/80 dark:text-purple-300 border-purple-300 dark:border-purple-800",
+    desc: "เช้าแล้วต่อ OT ดึก (ช. 08-16 น. + OT ดึก 24-08 น.)",
     hours: 16,
   },
   {

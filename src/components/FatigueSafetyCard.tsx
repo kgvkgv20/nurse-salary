@@ -223,19 +223,19 @@ export const FatigueSafetyCard: React.FC<FatigueSafetyCardProps> = ({
           </div>
         </div>
 
-        {/* Stepper 2: เวรควง 16 ชม. ติด */}
+        {/* Stepper 2: เวรควง 16 ชม. / เช้าต่อ OT ดึก */}
         <div className="flex items-center justify-between bg-white dark:bg-[#121c2c] p-2.5 rounded-xl border border-sky-100 dark:border-slate-800">
           <div className="flex-1 pr-2">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                เวรควง 16 ชม. ติด
+                เวรควง 16 ชม. / เช้า-ดึก
               </span>
               <span className="text-[9px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 px-1.5 py-0.2 rounded border border-amber-200 dark:border-amber-900">
                 ล้าเฉียบพลัน
               </span>
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              เช่น ช.+บ. หรือ บ.+ด. สมองล้าสะสมรุนแรงหลัง ชม. ที่ 12
+              เช่น ควงติด (ช.+บ., บ.+ด.) หรือ เช้าแล้วต่อ OT ดึก (รวมขึ้น 16 ชม./วัน)
             </p>
           </div>
 
