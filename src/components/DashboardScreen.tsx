@@ -89,6 +89,30 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   // Check if Wallet 2 is enabled
   const isDirectWalletEnabled = summary.settings.enable_direct_wallet !== false;
 
+  // Card 1 Breakdown Stats (Hospital Shifts & OT: Mobile Banking Style)
+  const hasMorningPay = summary.shiftTotals.m.total > 0;
+  const morningTotal = summary.shiftTotals.m.total;
+  const morningCount = summary.shiftTotals.m.count;
+
+  const afternoonTotal = summary.shiftTotals.a.total;
+  const afternoonCount = summary.shiftTotals.a.count;
+
+  const nightTotal = summary.shiftTotals.n.total;
+  const nightCount = summary.shiftTotals.n.count;
+
+  const otShiftCount =
+    summary.shiftTotals.ot_m.count +
+    summary.shiftTotals.ot_a.count +
+    summary.shiftTotals.ot_n.count +
+    (summary.shiftTotals.holiday.count > 0 ? summary.shiftTotals.holiday.count : 0);
+
+  const otTotalAmount =
+    summary.shiftTotals.ot_m.total +
+    summary.shiftTotals.ot_a.total +
+    summary.shiftTotals.ot_n.total +
+    summary.shiftTotals.holiday.total +
+    summary.extraHospitalSum;
+
   // Pending logs from Wallet 2
   const pendingLogs = summary.extraLogs.filter(
     (l) => l.payout_channel === "DIRECT" && !l.is_paid
@@ -281,23 +305,78 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <span className="text-xs text-slate-500 font-medium">บาท</span>
           </div>
 
-          {/* Breakdown tags */}
-          <div className="text-xs text-slate-600 dark:text-slate-400 mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="bg-[#f0f6fc] dark:bg-[#152033] px-2.5 py-1 rounded-lg border border-sky-100/80 dark:border-slate-700/60">
-              เวรตาราง: <strong className="tabular-nums font-semibold text-slate-900 dark:text-slate-100">฿{formatBaht(summary.shiftSum)}</strong>
-            </span>
-            <span className="bg-[#f0f6fc] dark:bg-[#152033] px-2.5 py-1 rounded-lg border border-sky-100/80 dark:border-slate-700/60">
-              OT/งอก: <strong className="tabular-nums font-semibold text-slate-900 dark:text-slate-100">฿{formatBaht(summary.extraHospitalSum)}</strong>
-            </span>
-            {summary.deductHospitalSum > 0 && (
-              <span className="bg-rose-50 dark:bg-rose-950/40 px-2.5 py-1 rounded-lg border border-rose-200/60 dark:border-rose-800/50 text-rose-700 dark:text-rose-400">
-                หักขายเวร: <strong className="tabular-nums font-semibold">-฿{formatBaht(summary.deductHospitalSum)}</strong>
-              </span>
-            )}
-            {summary.baseSalaryAmount > 0 && (
-              <span className="bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200/80 dark:border-slate-700">
-                ฐานเงินเดือน: <strong className="tabular-nums font-semibold text-slate-900 dark:text-slate-100">฿{formatBaht(summary.baseSalaryAmount)}</strong>
-              </span>
+          {/* Mini Stat Grid (Mobile Banking Style Breakdown: บ่าย / ดึก / OT รวม) */}
+          <div className="mt-3 bg-[#f0f6fc]/85 dark:bg-[#131d2e]/90 rounded-2xl p-3 border border-sky-100/90 dark:border-sky-900/50">
+            <div className={`grid ${hasMorningPay ? "grid-cols-4" : "grid-cols-3"} divide-x divide-sky-200/70 dark:divide-slate-800`}>
+              {/* Optional: เช้า (แสดงเฉพาะเมื่อมีการตั้งเรตเช้า > 0) */}
+              {hasMorningPay && (
+                <div className="text-center px-1.5 first:pl-0">
+                  <div className="flex items-center justify-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-400 mb-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                    <span>เช้า ({morningCount})</span>
+                  </div>
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+                    ฿{formatBaht(morningTotal)}
+                  </div>
+                </div>
+              )}
+
+              {/* คอลัมน์ 1: กะบ่าย */}
+              <div className={`text-center px-1.5 ${hasMorningPay ? "" : "first:pl-0"}`}>
+                <div className="flex items-center justify-center gap-1 text-[11px] font-medium text-sky-700 dark:text-sky-300 mb-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                  <span>บ่าย ({afternoonCount})</span>
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+                  ฿{formatBaht(afternoonTotal)}
+                </div>
+              </div>
+
+              {/* คอลัมน์ 2: กะดึก */}
+              <div className="text-center px-1.5">
+                <div className="flex items-center justify-center gap-1 text-[11px] font-medium text-indigo-700 dark:text-indigo-300 mb-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                  <span>ดึก ({nightCount})</span>
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+                  ฿{formatBaht(nightTotal)}
+                </div>
+              </div>
+
+              {/* คอลัมน์ 3: OT รวม (รวม OT ในตาราง + วันหยุด + OT ราย ชม.) */}
+              <div className="text-center px-1.5 last:pr-0">
+                <div className="flex items-center justify-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 mb-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>OT รวม ({otShiftCount})</span>
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+                  ฿{formatBaht(otTotalAmount)}
+                </div>
+              </div>
+            </div>
+
+            {/* Sub-note for Extra logs (e.g. OT อยู่ต่อ), Deductions, or Base Salary */}
+            {(summary.extraHospitalSum > 0 || summary.deductHospitalSum > 0 || summary.baseSalaryAmount > 0) && (
+              <div className="mt-2.5 pt-2 border-t border-dashed border-sky-200/60 dark:border-slate-800 flex flex-wrap items-center justify-between gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                {summary.baseSalaryAmount > 0 && (
+                  <span className="inline-flex items-center gap-1">
+                    <span>ฐานเงินเดือน:</span>
+                    <strong className="text-slate-800 dark:text-slate-200 font-semibold tabular-nums">+฿{formatBaht(summary.baseSalaryAmount)}</strong>
+                  </span>
+                )}
+                {summary.extraHospitalSum > 0 && (
+                  <span className="inline-flex items-center gap-1 text-sky-700 dark:text-sky-300">
+                    <span>รวม OT อยู่ต่อ/งอก:</span>
+                    <strong className="font-semibold tabular-nums">฿{formatBaht(summary.extraHospitalSum)}</strong>
+                  </span>
+                )}
+                {summary.deductHospitalSum > 0 && (
+                  <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400">
+                    <span>หักขายเวร:</span>
+                    <strong className="font-semibold tabular-nums">-฿{formatBaht(summary.deductHospitalSum)}</strong>
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>

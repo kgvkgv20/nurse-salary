@@ -65,4 +65,16 @@ test.describe("Wallet 2 Toggle & Persistence", () => {
       page.locator("text=รายได้รวมทุกกระเป๋าในรอบนี้")
     ).toBeVisible();
   });
+
+  test("displays mini stat grid breakdown for hospital shifts (บ่าย, ดึก, OT รวม)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Check that Mini Stat Grid renders the 3 columns on Card 1
+    await expect(page.locator("text=บ่าย (")).toBeVisible();
+    await expect(page.locator("text=ดึก (")).toBeVisible();
+    await expect(page.locator("text=OT รวม (")).toBeVisible();
+  });
 });
